@@ -1,0 +1,164 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// SQLite does not support native enums, using String for these fields
+
+model User {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  password      String
+  name          String
+  role          String      @default("MEMBER") // SUPER_ADMIN, DEPARTMENT_LEADER, MEMBER
+  departmentId  String?
+  department    Department? @relation("DeptLeader", fields: [departmentId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  meetingsOrganized Meeting[] @relation("MeetingOrganizer")
+  assignedFollowUps Meeting[] @relation("MeetingFollowUp")
+  announcements     Announcement[]
+  prayerRequests    PrayerRequest[]
+}
+
+model Department {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  leaderId    String?
+  leaders     User[]   @relation("DeptLeader")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  meetings      Meeting[]
+  budgets       Budget[]
+  contributors  Contributor[]
+  announcements Announcement[]
+  volunteers    Volunteer[]
+  assets        Asset[]
+  strategies    Strategy[]
+}
+
+model Meeting {
+  id               String         @id @default(uuid())
+  title            String
+  departmentId     String
+  department       Department     @relation(fields: [departmentId], references: [id])
+  date             DateTime
+  time             String
+  venue            String
+  meetingType      String
+  agenda           String
+  organizerId      String
+  organizer        User           @relation("MeetingOrganizer", fields: [organizerId], references: [id])
+  followUpPersonId String?
+  followUpPerson   User?          @relation("MeetingFollowUp", fields: [followUpPersonId], references: [id])
+  followUpDeadline DateTime?
+  followUpStatus   String         @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, OVERDUE
+  meetingStatus    String         @default("SCHEDULED") // SCHEDULED, ONGOING, COMPLETED, CANCELLED, POSTPONED
+  minutes          String?
+  attendance       String?        // Store as stringified JSON or comma-separated
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model Budget {
+  id                String   @id @default(uuid())
+  title             String
+  targetAmount      Float
+  amountRaised      Float    @default(0)
+  linkedEventId     String?
+  deadline          DateTime
+  status            String   @default("OPEN")
+  departmentId      String
+  department        Department @relation(fields: [departmentId], references: [id])
+  contributors      Contributor[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Contributor {
+  id            String   @id @default(uuid())
+  name          String
+  amount        Float
+  paymentMethod String
+  date          DateTime @default(now())
+  budgetId      String
+  budget        Budget   @relation(fields: [budgetId], references: [id])
+  departmentId  String
+  department    Department @relation(fields: [departmentId], references: [id])
+  anonymousFlag Boolean  @default(false)
+  notes         String?
+}
+
+model Announcement {
+  id           String   @id @default(uuid())
+  title        String
+  content      String
+  priority     String   @default("NORMAL")
+  expiry       DateTime?
+  authorId     String
+  author       User     @relation(fields: [authorId], references: [id])
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model PrayerRequest {
+  id           String   @id @default(uuid())
+  requesterId  String
+  requester    User     @relation(fields: [requesterId], references: [id])
+  content      String
+  privacyLevel String   @default("PRIVATE")
+  status       String   @default("PENDING")
+  assignedTeam String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Volunteer {
+  id           String   @id @default(uuid())
+  name         String
+  email        String?
+  skills       String?    // SQLite does not support String[], store as comma-separated
+  availability String?
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id])
+  status       String     @default("ACTIVE")
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Asset {
+  id                  String   @id @default(uuid())
+  name                String
+  condition           String
+  assignedTo          String?
+  maintenanceSchedule String?
+  departmentId        String
+  department          Department @relation(fields: [departmentId], references: [id])
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Strategy {
+  id             String   @id @default(uuid())
+  title          String
+  actionItems    String
+  assignedPerson String?
+  deadline       DateTime?
+  status         String   @default("PENDING")
+  departmentId   String
+  department     Department @relation(fields: [departmentId], references: [id])
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
