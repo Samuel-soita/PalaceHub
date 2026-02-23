@@ -26,6 +26,11 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@prisma/client": "^5.22.0"
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^6.0.0",
+    "ts-node": "^10.9.2"
+  },
+  "prisma": {
+    "seed": "node --import tsx/esm prisma/seed.ts"
   }
 }

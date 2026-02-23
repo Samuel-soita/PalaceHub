@@ -1,92 +1,105 @@
-import { Typography, Grid, Card, CardContent, Box, LinearProgress } from '@mui/material';
-import { Users, Calendar, TrendingUp, AlertCircle, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import api from '../lib/api-client';
+import { Typography, Grid, Card, CardContent, Box, Avatar, Chip, Button } from '@mui/material';
+import {
+    Users, Calendar, TrendingUp, AlertCircle, Globe, Zap, Clock
+} from 'lucide-react';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { StatCard } from '../components/dashboard/StatCard';
+import { SectorMatrix } from '../components/dashboard/SectorMatrix';
 
 export default function AdminDashboard() {
-    const stats = [
-        { title: 'Total Members', value: '452', change: '+12%', trend: 'up', icon: Users, color: 'blue' },
-        { title: 'Meetings This Month', value: '28', change: '+4%', trend: 'up', icon: Calendar, color: 'green' },
-        { title: 'Fundraising Goal', value: '74%', change: '-2%', trend: 'down', icon: TrendingUp, color: 'purple' },
-        { title: 'Overdue Follow-ups', value: '7', change: '+3', trend: 'down', icon: AlertCircle, color: 'red' },
+    const { data: departments } = useQuery(['departments'], async () => {
+        const res = await api.get('/departments');
+        return res.data;
+    });
+
+    const stats: any[] = [
+        { title: 'Global Personnel', value: '452', change: '+12%', trend: 'up', icon: Users, color: 'blue' },
+        { title: 'Strategic briefings', value: '28', change: '+4%', trend: 'up', icon: Calendar, color: 'green' },
+        { title: 'Fundraising quota', value: '74%', change: '-2%', trend: 'down', icon: TrendingUp, color: 'purple' },
+        { title: 'Critical Follow-ups', value: '7', icon: AlertCircle, color: 'red' },
     ];
 
     return (
         <DashboardLayout>
-            <div className="mb-8">
-                <Typography variant="h4" fontWeight="bold">Executive Overview</Typography>
-                <Typography color="textSecondary">Global analytics and performance tracking for all church departments.</Typography>
-            </div>
+            <Box sx={{ mb: { xs: 6, md: 10 }, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'start', md: 'end' }, gap: 4 }}>
+                <div>
+                    <Typography variant="h2" fontWeight="950" className="glow-text" sx={{ letterSpacing: -4, mb: 1, fontSize: { xs: '2.5rem', md: '4rem' }, lineHeight: 1 }}>
+                        EXECUTIVE <span className="text-primary/70">COMMAND</span>
+                    </Typography>
+                    <Typography color="textSecondary" variant="h6" sx={{ fontWeight: 500, opacity: 0.6, maxWidth: 600 }}>
+                        Unified surveillance and tactical performance analytics across all global sectors.
+                    </Typography>
+                </div>
+                <Box display="flex" gap={2} sx={{ width: { xs: '100%', md: 'auto' } }}>
+                    <Button fullWidth variant="outlined" sx={{ borderRadius: 3, py: 1.5, px: 4, fontWeight: '900', border: '1px solid var(--glass-border)' }} startIcon={<Globe size={20} />}>
+                        GLOBAL VIEW
+                    </Button>
+                    <Button fullWidth variant="contained" sx={{ borderRadius: 3, py: 1.5, px: 4, fontWeight: '900', boxShadow: '0 0 20px var(--primary-glow)' }} startIcon={<Zap size={20} />}>
+                        SYNC GRID
+                    </Button>
+                </Box>
+            </Box>
 
-            <Grid container spacing={3} mb={6}>
+            <Grid container spacing={3} mb={10}>
                 {stats.map((stat) => (
                     <Grid item xs={12} sm={6} md={3} key={stat.title}>
-                        <Card sx={{ height: '100%', borderRadius: 3 }}>
-                            <CardContent>
-                                <Box display="flex" justifyContent="space-between" alignItems="start" mb={2}>
-                                    <div className={`p-2 rounded-lg bg-${stat.color}-500/10 text-${stat.color}-600`}>
-                                        <stat.icon size={20} />
-                                    </div>
-                                    <Box display="flex" alignItems="center" gap={0.5} color={stat.trend === 'up' ? 'success.main' : 'error.main'}>
-                                        <Typography variant="caption" fontWeight="bold">{stat.change}</Typography>
-                                        {stat.trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                                    </Box>
-                                </Box>
-                                <Typography variant="h4" fontWeight="bold" mb={0.5}>{stat.value}</Typography>
-                                <Typography variant="body2" color="textSecondary" sx={{ fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                                    {stat.title}
-                                </Typography>
-                            </CardContent>
-                        </Card>
+                        <StatCard {...stat} />
                     </Grid>
                 ))}
             </Grid>
 
             <Grid container spacing={4}>
                 <Grid item xs={12} lg={8}>
-                    <Card sx={{ borderRadius: 3, height: '100%' }}>
-                        <CardContent sx={{ p: 4 }}>
-                            <Typography variant="h6" fontWeight="bold" mb={3}>Departmental Performance</Typography>
-                            <Box display="flex" flexDirection="column" gap={4}>
-                                {[
-                                    { name: 'Youth Ministry', progress: 85, color: 'blue' },
-                                    { name: 'Media & Tech', progress: 92, color: 'green' },
-                                    { name: 'Hospitality', progress: 68, color: 'orange' },
-                                    { name: 'Sunday School', progress: 45, color: 'red' },
-                                ].map((dept) => (
-                                    <div key={dept.name}>
-                                        <Box display="flex" justifyContent="space-between" mb={1}>
-                                            <Typography variant="body2" fontWeight="medium">{dept.name}</Typography>
-                                            <Typography variant="body2" fontWeight="bold">{dept.progress}%</Typography>
-                                        </Box>
-                                        <LinearProgress variant="determinate" value={dept.progress} sx={{ height: 8, borderRadius: 4 }} />
-                                    </div>
-                                ))}
+                    <Card className="holographic-card smooth-tilt" sx={{ height: '100%' }}>
+                        <CardContent sx={{ p: { xs: 4, md: 6 } }}>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={6}>
+                                <div>
+                                    <Typography variant="h4" fontWeight="950" sx={{ letterSpacing: -2 }}>Sector Readiness Matrix</Typography>
+                                    <Typography className="neon-label" sx={{ mt: 1 }}>Live Tactical Data Stream</Typography>
+                                </div>
+                                <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
+                                    <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                                    <Typography variant="caption" fontWeight="900" sx={{ color: 'primary.main' }}>LIVE</Typography>
+                                </div>
                             </Box>
+                            <SectorMatrix departments={departments || []} />
                         </CardContent>
                     </Card>
                 </Grid>
+
                 <Grid item xs={12} lg={4}>
-                    <Card sx={{ borderRadius: 3, height: '100%' }}>
-                        <CardContent>
-                            <Typography variant="h6" fontWeight="bold" mb={3}>Recent Activity</Typography>
-                            <Box display="flex" flexDirection="column" gap={3}>
+                    <Card className="holographic-card" sx={{ height: '100%' }}>
+                        <CardContent sx={{ p: { xs: 4, md: 5 } }}>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={5}>
+                                <Typography variant="h5" fontWeight="950" sx={{ letterSpacing: -1 }}>Tactical Feed</Typography>
+                                <Clock size={18} className="text-primary opacity-50" />
+                            </Box>
+                            <Box display="flex" flexDirection="column" gap={4}>
                                 {[
-                                    { user: 'John Doe', action: 'completed a meeting follow-up', time: '2h ago' },
-                                    { user: 'Sarah Smith', action: 'created a new budget target', time: '5h ago' },
-                                    { user: 'Media Team', action: 'posted a new announcement', time: '1d ago' },
-                                    { user: 'Youth Dept', action: 'added 5 new volunteers', time: '2d ago' },
+                                    { user: 'Commander Soita', action: 'authorized deployment', time: '2m ago', color: 'blue' },
+                                    { user: 'Sector Alpha', action: 'synced intelligence', time: '14m ago', color: 'green' },
+                                    { user: 'Logistics Hub', action: 'flagged variance', time: '1h ago', color: 'red' },
+                                    { user: 'Personnel Dept', action: 'enlisted units', time: '3h ago', color: 'purple' },
                                 ].map((activity, i) => (
-                                    <div key={i} className="flex gap-3">
-                                        <div className="w-2 h-2 rounded-full bg-primary mt-1.5" />
+                                    <Box key={i} sx={{ display: 'flex', gap: 2.5 }}>
+                                        <Avatar className="tactical-border" sx={{ width: 40, height: 40, bgcolor: 'primary/10', color: 'primary.main', fontWeight: '900', fontSize: '0.9rem' }}>
+                                            {activity.user.charAt(0)}
+                                        </Avatar>
                                         <div>
-                                            <Typography variant="body2">
-                                                <span className="font-bold">{activity.user}</span> {activity.action}
+                                            <Typography variant="body1" sx={{ fontWeight: 800, lineHeight: 1.1 }}>
+                                                {activity.user}
                                             </Typography>
-                                            <Typography variant="caption" color="textSecondary">{activity.time}</Typography>
+                                            <Typography variant="body2" sx={{ opacity: 0.6, mb: 0.5 }}>{activity.action}</Typography>
+                                            <Typography className="neon-label" sx={{ fontSize: '0.55rem !important', opacity: 0.5 }}>T-{activity.time}</Typography>
                                         </div>
-                                    </div>
+                                    </Box>
                                 ))}
                             </Box>
+                            <Button fullWidth variant="outlined" sx={{ mt: 6, py: 1.5, borderRadius: 3, fontWeight: '900', textTransform: 'none', border: '1px solid var(--glass-border)' }}>
+                                VIEW ALL ASSETS
+                            </Button>
                         </CardContent>
                     </Card>
                 </Grid>

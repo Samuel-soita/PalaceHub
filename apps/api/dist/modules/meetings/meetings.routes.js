@@ -4,5 +4,6 @@ import { authenticate } from '../../middleware/auth.middleware.js';
 const router = Router();
 router.post('/', authenticate, meetingController.createMeeting);
 router.get('/', authenticate, meetingController.getMeetings);
-router.patch('/:id', authenticate, meetingController.updateMeeting);
+router.put('/:id', authenticate, meetingController.updateMeeting);
+router.delete('/:id', authenticate, meetingController.deleteMeeting);
 export default router;

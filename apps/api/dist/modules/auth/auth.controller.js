@@ -10,7 +10,7 @@ export const register = async (req, res) => {
                 email,
                 password: hashedPassword,
                 name,
-                role: role || 'MEMBER',
+                role: role || 'DEPARTMENT_LEADER',
                 departmentId,
             },
         });
@@ -27,6 +27,9 @@ export const login = async (req, res) => {
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        if (user.role === 'MEMBER') {
+            return res.status(403).json({ error: 'Access denied. Only leaders can log in.' });
         }
         const token = jwt.sign({ id: user.id, role: user.role, departmentId: user.departmentId }, process.env.JWT_SECRET || 'secret', { expiresIn: '1d' });
         res.json({ user: { id: user.id, email: user.email, name: user.name, role: user.role }, token });

@@ -11,6 +11,7 @@ import announcementRoutes from './modules/announcements/announcements.routes.js'
 import prayerRequestRoutes from './modules/prayer-requests/prayer-requests.routes.js';
 import assetRoutes from './modules/assets/assets.routes.js';
 import strategyRoutes from './modules/strategy/strategy.routes.js';
+import eventRoutes from './modules/events/events.routes.js';
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ app.use('/announcements', announcementRoutes);
 app.use('/prayer-requests', prayerRequestRoutes);
 app.use('/assets', assetRoutes);
 app.use('/strategy', strategyRoutes);
+app.use('/events', eventRoutes);
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });

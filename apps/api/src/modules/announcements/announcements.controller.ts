@@ -3,8 +3,15 @@ import prisma from '../../utils/prisma.js';
 import { AuthRequest } from '../../middleware/auth.middleware.js';
 
 export const getAnnouncements = async (req: Request, res: Response) => {
+    const { departmentId } = req.query;
     try {
         const announcements = await prisma.announcement.findMany({
+            where: {
+                OR: [
+                    { departmentId: departmentId as string },
+                    { departmentId: null } // Global announcements
+                ]
+            },
             include: { author: { select: { id: true, name: true, email: true } }, department: true },
             orderBy: { createdAt: 'desc' },
         });

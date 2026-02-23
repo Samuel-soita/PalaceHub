@@ -18,8 +18,13 @@ export default function Login() {
         setError('');
         try {
             const res = await api.post('/auth/login', { email, password });
-            login(res.data);
-            navigate('/');
+            const data = res.data;
+            login(data);
+            if (data.user.role === 'SUPER_ADMIN') {
+                navigate('/');
+            } else {
+                navigate(`/department/${data.user.departmentId}`);
+            }
         } catch (err: any) {
             setError(err.response?.data?.error || 'Login failed');
         } finally {

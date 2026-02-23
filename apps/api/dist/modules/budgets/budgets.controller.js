@@ -35,3 +35,27 @@ export const getBudgets = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch budgets' });
     }
 };
+export const updateBudget = async (req, res) => {
+    try {
+        const budget = await prisma.budget.update({
+            where: { id: req.params.id },
+            data: {
+                ...req.body,
+                deadline: req.body.deadline ? new Date(req.body.deadline) : undefined,
+            },
+        });
+        res.json(budget);
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message || 'Failed to update budget' });
+    }
+};
+export const deleteBudget = async (req, res) => {
+    try {
+        await prisma.budget.delete({ where: { id: req.params.id } });
+        res.json({ message: 'Budget deleted successfully' });
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message || 'Failed to delete budget' });
+    }
+};

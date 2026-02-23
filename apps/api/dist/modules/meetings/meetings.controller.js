@@ -58,3 +58,12 @@ export const updateMeeting = async (req, res) => {
         res.status(400).json({ error: 'Failed to update meeting' });
     }
 };
+export const deleteMeeting = async (req, res) => {
+    try {
+        await prisma.meeting.delete({ where: { id: req.params.id } });
+        res.json({ message: 'Meeting deleted successfully' });
+    }
+    catch (error) {
+        res.status(400).json({ error: 'Failed to delete meeting' });
+    }
+};

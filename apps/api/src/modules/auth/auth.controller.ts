@@ -13,7 +13,7 @@ export const register = async (req: Request, res: Response) => {
                 email,
                 password: hashedPassword,
                 name,
-                role: role || 'MEMBER',
+                role: role || 'DEPARTMENT_LEADER',
                 departmentId,
             },
         });
@@ -38,6 +38,10 @@ export const login = async (req: Request, res: Response) => {
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return res.status(401).json({ error: 'Invalid credentials' });
+        }
+
+        if (user.role === 'MEMBER') {
+            return res.status(403).json({ error: 'Access denied. Only leaders can log in.' });
         }
 
         const token = jwt.sign(
